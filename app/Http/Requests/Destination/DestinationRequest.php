@@ -24,6 +24,8 @@ class DestinationRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:3|unique:destinations,code,' . ($this->destination ? $this->destination->id : 'NULL') . ',id',
+            'visa_type_ids' => 'sometimes|array',
+            'visa_type_ids.*' => 'exists:visa_types,id',
         ];
     }
 }

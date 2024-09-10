@@ -14,10 +14,9 @@ class DestinationController extends Controller
      */
     public function index()
     {
-        $destination = Destination::all();
-        return response()->json($destination);
+        $destinations = Destination::with('visaTypes')->get();
+        return response()->json($destinations);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -25,7 +24,12 @@ class DestinationController extends Controller
     public function store(DestinationRequest $request)
     {
         $destination = Destination::create($request->validated());
-        return response()->json($destination, 201);
+        
+        if ($request->has('visa_type_ids')) {
+            $destination->visaTypes()->sync($request->visa_type_ids);
+        }
+        
+        return response()->json($destination->load('visaTypes'), 201);
     }
 
     /**
@@ -33,7 +37,7 @@ class DestinationController extends Controller
      */
     public function show(Destination $destination)
     {
-        return response()->json($destination);
+        return response()->json($destination->load('visaTypes'));
     }
 
     /**
@@ -42,7 +46,12 @@ class DestinationController extends Controller
     public function update(DestinationRequest $request, Destination $destination)
     {
         $destination->update($request->validated());
-        return response()->json($destination);
+        
+        if ($request->has('visa_type_ids')) {
+            $destination->visaTypes()->sync($request->visa_type_ids);
+        }
+        
+        return response()->json($destination->load('visaTypes'));
     }
 
     /**
@@ -50,7 +59,36 @@ class DestinationController extends Controller
      */
     public function destroy(Destination $destination)
     {
+        $destination->visaTypes()->detach();
         $destination->delete();
         return response()->json(null, 204);
+    }
+
+    /**
+     * Add a visa type to the destination.
+     */
+    public function addVisaType(Request $request, Destination $destination)
+    {
+        $request->validate([
+            'visa_type_id' => 'required|exists:visa_types,id',
+        ]);
+
+        $destination->visaTypes()->attach($request->visa_type_id);
+
+        return response()->json($destination->load('visaTypes'));
+    }
+
+    /**
+     * Remove a visa type from the destination.
+     */
+    public function removeVisaType(Request $request, Destination $destination)
+    {
+        $request->validate([
+            'visa_type_id' => 'required|exists:visa_types,id',
+        ]);
+
+        $destination->visaTypes()->detach($request->visa_type_id);
+
+        return response()->json($destination->load('visaTypes'));
     }
 }

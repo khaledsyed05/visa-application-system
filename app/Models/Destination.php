@@ -14,4 +14,8 @@ class Destination extends Model
     {
         return $this->hasMany(Application::class);
     }
+    public function visaTypes()
+    {
+        return $this->belongsToMany(VisaType::class, 'visa_types_destinations');
+    }
 }

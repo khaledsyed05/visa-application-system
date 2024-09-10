@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('destinations', function (Blueprint $table) {
+        Schema::create('visa_types_destinations', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('code', 3)->unique();
-            $table->string('description');
-            $table->string('image');
+            $table->foreignId('visa_type_id')->constrained();
+            $table->foreignId('destination_id')->constrained();
+            
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('destinations');
+        Schema::dropIfExists('visa_types_destinations');
     }
 };

@@ -13,7 +13,16 @@ Route::post('login', [AuthController::class, 'login']);
 Route::middleware('auth:api')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
-    Route::apiResource('destinations', DestinationController::class);
+    Route::prefix('destinations')->group(function () {
+        Route::get('/', [DestinationController::class, 'index']);
+        Route::post('/', [DestinationController::class, 'store']);
+        Route::get('/{destination}', [DestinationController::class, 'show']);
+        Route::put('/{destination}', [DestinationController::class, 'update']);
+        Route::patch('/{destination}', [DestinationController::class, 'update']);
+        Route::delete('/{destination}', [DestinationController::class, 'destroy']);
+        Route::post('/{destination}/add-visa-type', [DestinationController::class, 'addVisaType']);
+        Route::post('/{destination}/remove-visa-type', [DestinationController::class, 'removeVisaType']);
+    });
     Route::apiResource('visa-types', VisaTypeController::class);
     Route::get('/analytics', [AnalyticsController::class, 'index']);
 

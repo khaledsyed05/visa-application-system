@@ -17,7 +17,8 @@ class Application extends Model
         'photo_file',
         'additional_info',
         'phone_number',
-        'status'
+        'status',
+        'payment_id' 
     ];
 
     protected $casts = [

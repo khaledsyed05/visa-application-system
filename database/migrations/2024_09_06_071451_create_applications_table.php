@@ -22,6 +22,8 @@ return new class extends Migration
         $table->string('additional_info')->nullable();
         $table->string('phone_number')->nullable();
         $table->string('status')->default('unpaid');
+        $table->string('paypal_order_id')->nullable();
+        $table->string('payment_id')->nullable();
         $table->timestamps();
 
         $table->foreign('visa_type_id')->references('id')->on('visa_types');
