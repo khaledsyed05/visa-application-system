@@ -42,7 +42,7 @@ class ApplicationController extends Controller
     /**
      * Store a newly created application in storage.
      */
-    public function store(ApplicationRequest $request): JsonResponse
+    public function store(ApplicationRequest $request)
     {
         $validated = $request->validated();
 
@@ -81,25 +81,28 @@ class ApplicationController extends Controller
     /**
      * Update the specified application in storage.
      */
-    public function update(Request $request, Application $application): JsonResponse
+    public function update(Request $request, Application $application)
     {
         $validated = $request->validate([
-            'status' => 'required|in:pending,processing,approved,rejected',
-            'admin_notes' => 'nullable|string',
+            'status' => 'required|string',
+            'admin_notes' => 'nullable|array',
         ]);
-
+    
         $oldStatus = $application->status;
-        $application->update($validated);
-
+        $application->update(['status' => $validated['status']]);
+        $application = $application->fresh();
+    
+        $adminNotes = $validated['admin_notes'] ?? [];
+    
         if ($oldStatus !== $application->status) {
             try {
-                Mail::to($application->email)->send(new ApplicationStatusChangedMail($application));
+                Mail::to($application->email)->send(new ApplicationStatusChangedMail($application, $adminNotes));
                 Log::info('Status change email sent for application ID: ' . $application->id);
             } catch (\Exception $e) {
                 Log::error('Failed to send status change email for application ID: ' . $application->id . '. Error: ' . $e->getMessage());
             }
         }
-
+    
         return response()->json(['message' => 'Application updated successfully']);
     }
 

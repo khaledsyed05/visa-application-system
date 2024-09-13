@@ -25,8 +25,8 @@ class DestinationController extends Controller
     {
         $destination = Destination::create($request->validated());
         
-        if ($request->has('visa_type_ids')) {
-            $destination->visaTypes()->sync($request->visa_type_ids);
+        if ($request->has('visa_types')) {
+            $destination->visaTypes()->sync($request->visa_types);
         }
         
         return response()->json($destination->load('visaTypes'), 201);
@@ -47,8 +47,8 @@ class DestinationController extends Controller
     {
         $destination->update($request->validated());
         
-        if ($request->has('visa_type_ids')) {
-            $destination->visaTypes()->sync($request->visa_type_ids);
+        if ($request->has('visa_types')) {
+            $destination->visaTypes()->sync($request->visa_types);
         }
         
         return response()->json($destination->load('visaTypes'));
@@ -64,31 +64,4 @@ class DestinationController extends Controller
         return response()->json(null, 204);
     }
 
-    /**
-     * Add a visa type to the destination.
-     */
-    public function addVisaType(Request $request, Destination $destination)
-    {
-        $request->validate([
-            'visa_type_id' => 'required|exists:visa_types,id',
-        ]);
-
-        $destination->visaTypes()->attach($request->visa_type_id);
-
-        return response()->json($destination->load('visaTypes'));
-    }
-
-    /**
-     * Remove a visa type from the destination.
-     */
-    public function removeVisaType(Request $request, Destination $destination)
-    {
-        $request->validate([
-            'visa_type_id' => 'required|exists:visa_types,id',
-        ]);
-
-        $destination->visaTypes()->detach($request->visa_type_id);
-
-        return response()->json($destination->load('visaTypes'));
-    }
 }

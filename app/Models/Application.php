@@ -22,7 +22,7 @@ class Application extends Model
     ];
 
     protected $casts = [
-        'document_data' => 'array',
+        'admin_notes' => 'array',
     ];
 
     public function visaType()

@@ -10,20 +10,20 @@ use App\Http\Controllers\PayPalController;
 
 Route::post('login', [AuthController::class, 'login']);
 
-Route::middleware('auth:api')->group(function () {
-    Route::post('logout', [AuthController::class, 'logout']);
+Route::prefix('admin')->middleware('auth:api')->group(function () {
 
-    Route::prefix('destinations')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::prefix('/destinations')->group(function () {
         Route::get('/', [DestinationController::class, 'index']);
         Route::post('/', [DestinationController::class, 'store']);
         Route::get('/{destination}', [DestinationController::class, 'show']);
         Route::put('/{destination}', [DestinationController::class, 'update']);
-        Route::patch('/{destination}', [DestinationController::class, 'update']);
         Route::delete('/{destination}', [DestinationController::class, 'destroy']);
-        Route::post('/{destination}/add-visa-type', [DestinationController::class, 'addVisaType']);
-        Route::post('/{destination}/remove-visa-type', [DestinationController::class, 'removeVisaType']);
     });
-    Route::apiResource('visa-types', VisaTypeController::class);
+
+    Route::apiResource('/visa-types', VisaTypeController::class);
+    
     Route::get('/analytics', [AnalyticsController::class, 'index']);
 
     Route::get('/applications', [ApplicationController::class, 'index']);
@@ -31,8 +31,9 @@ Route::middleware('auth:api')->group(function () {
     Route::put('/applications/{application}', [ApplicationController::class, 'update']);
     Route::delete('/applications/{application}', [ApplicationController::class, 'destroy']);
 });
-Route::post('applications', [ApplicationController::class, 'store']);
 
+Route::get('/destinations', [DestinationController::class, 'index']);
+Route::post('applications', [ApplicationController::class, 'store']);
 Route::post('/paypal/create-order', [PayPalController::class, 'createOrder']);
 Route::post('/paypal/capture-payment', [PayPalController::class, 'capturePayment'])->name('paypal.capture');
 Route::post('/paypal/cancel-payment', [PayPalController::class, 'cancelPayment'])->name('paypal.cancel');

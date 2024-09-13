@@ -12,13 +12,20 @@ class ApplicationStatusChangedMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Application $application)
+    public $adminNotes;
+
+    public function __construct(public Application $application, array $adminNotes = [])
     {
+        $this->adminNotes = $adminNotes;
     }
 
     public function build()
     {
         return $this->subject('Visa Application Status Update')
-                    ->text('emails.application-status-changed');
+                    ->text('emails.application-status-changed')
+                    ->with([
+                        'application' => $this->application,
+                        'adminNotes' => $this->adminNotes
+                    ]);
     }
 }
