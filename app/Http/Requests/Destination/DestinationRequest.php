@@ -25,7 +25,7 @@ class DestinationRequest extends FormRequest
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:3|unique:destinations,code,' . ($this->destination ? $this->destination->id : 'NULL') . ',id',
             'description' => 'required|string',
-            'image' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
             'visa_types' => 'nullable|array',
             'visa_types.*' => 'exists:visa_types,id',
         ];

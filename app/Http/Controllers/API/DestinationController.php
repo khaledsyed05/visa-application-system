@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Destination\DestinationRequest;
 use App\Models\Destination;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class DestinationController extends Controller
 {
@@ -23,11 +24,19 @@ class DestinationController extends Controller
      */
     public function store(DestinationRequest $request)
     {
-        $destination = Destination::create($request->validated());
-        
-        if ($request->has('visa_types')) {
-            $destination->visaTypes()->sync($request->visa_types);
-        }
+        $validatedData = $request->validated();
+    
+    // Handle the image upload
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('destinations', 'public');
+        $validatedData['image'] = $imagePath;
+    }
+    
+    $destination = Destination::create($validatedData);
+    
+    if ($request->has('visa_types')) {
+        $destination->visaTypes()->sync($request->visa_types);
+    }
         
         return response()->json($destination->load('visaTypes'), 201);
     }
@@ -45,12 +54,29 @@ class DestinationController extends Controller
      */
     public function update(DestinationRequest $request, Destination $destination)
     {
-        $destination->update($request->validated());
-        
+        $validatedData = $request->validated();
+    
+        // Handle the image upload
+        if ($request->hasFile('image')) {
+            // Delete the old image if it exists
+            if ($destination->image) {
+                Storage::disk('public')->delete($destination->image);
+            }
+    
+            // Store the new image
+            $imagePath = $request->file('image')->store('destinations', 'public');
+            $validatedData['image'] = $imagePath;
+        }
+    
+        $destination->update($validatedData);
+    
         if ($request->has('visa_types')) {
             $destination->visaTypes()->sync($request->visa_types);
         }
-        
+    
+        // Refresh the model to get the updated data
+        $destination->refresh();
+    
         return response()->json($destination->load('visaTypes'));
     }
 
