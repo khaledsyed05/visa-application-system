@@ -15,6 +15,7 @@ class Application extends Model
         'email',
         'passport_file',
         'photo_file',
+        'id_picture',
         'additional_info',
         'phone_number',
         'status',

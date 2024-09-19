@@ -17,8 +17,9 @@ return new class extends Migration
         $table->unsignedBigInteger('destination_id');
         $table->string('applicant_name');
         $table->string('email');
-        $table->string('passport_file');
-        $table->string('photo_file');
+        $table->string('passport_file')->nullable();
+        $table->string('photo_file')->nullable();
+        $table->string('id_picture')->nullable();
         $table->string('additional_info')->nullable();
         $table->string('phone_number')->nullable();
         $table->string('status')->default('unpaid');

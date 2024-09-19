@@ -12,9 +12,16 @@ use Illuminate\Support\Facades\Storage;
 use App\Mail\ApplicationSubmitted;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
+use App\Services\VisaValidationService;
 
 class ApplicationController extends Controller
 {
+    protected $validationService;
+
+    public function __construct(VisaValidationService $validationService)
+    {
+        $this->validationService = $validationService;
+    }
     /**
      * Display a listing of the applications.
      */
@@ -42,9 +49,12 @@ class ApplicationController extends Controller
     /**
      * Store a newly created application in storage.
      */
-    public function store(ApplicationRequest $request)
+    public function store(Request $request)
     {
-        $validated = $request->validated();
+        // Get dynamic validation rules
+        $rules = $this->validationService->getValidationRules($request->visa_type_id, $request->destination_id);
+        
+        $validated = $request->validate($rules);
 
         $passportPath = $request->file('passport_file')->store('passports', 'public');
         $photoPath = $request->file('photo_file')->store('photos', 'public');
@@ -56,18 +66,19 @@ class ApplicationController extends Controller
             'email' => $validated['email'],
             'passport_file' => $passportPath,
             'photo_file' => $photoPath,
-            'additional_info' => $validated['additional_info'],
-            'phone_number'=> $validated['phone_number'],
+            'additional_info' => $validated['additional_info'] ?? null,
+            'phone_number' => $validated['phone_number'] ?? null,
         ]);
 
         try {
             Mail::send(new ApplicationSubmitted($application));
         } catch (\Exception $e) {
             // Log the error, but don't expose it to the user
-            \Log::error('Failed to send email for application ID: ' . $application->id . '. Error: ' . $e->getMessage());
+            Log::error('Failed to send email for application ID: ' . $application->id . '. Error: ' . $e->getMessage());
         }
-    
-        return response()->json(['message' => 'Application submitted successfully', 'id' => $application->id], 201); }
+
+        return response()->json(['message' => 'Application submitted successfully', 'id' => $application->id], 201);
+    }
 
     /**
      * Display the specified application.
@@ -87,13 +98,13 @@ class ApplicationController extends Controller
             'status' => 'required|string',
             'admin_notes' => 'nullable|array',
         ]);
-    
+
         $oldStatus = $application->status;
         $application->update(['status' => $validated['status']]);
         $application = $application->fresh();
-    
+
         $adminNotes = $validated['admin_notes'] ?? [];
-    
+
         if ($oldStatus !== $application->status) {
             try {
                 Mail::to($application->email)->send(new ApplicationStatusChangedMail($application, $adminNotes));
@@ -102,7 +113,7 @@ class ApplicationController extends Controller
                 Log::error('Failed to send status change email for application ID: ' . $application->id . '. Error: ' . $e->getMessage());
             }
         }
-    
+
         return response()->json(['message' => 'Application updated successfully']);
     }
 
@@ -117,5 +128,4 @@ class ApplicationController extends Controller
 
         return response()->json(['message' => 'Application deleted successfully']);
     }
-
 }

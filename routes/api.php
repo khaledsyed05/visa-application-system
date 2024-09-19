@@ -7,6 +7,7 @@ use App\Http\Controllers\API\DestinationController;
 use App\Http\Controllers\API\VisaTypeController;
 use App\Http\Controllers\API\ApplicationController;
 use App\Http\Controllers\PayPalController;
+use App\Http\Controllers\VisaFieldRequirementController;
 
 Route::post('login', [AuthController::class, 'login']);
 
@@ -23,13 +24,15 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     });
 
     Route::apiResource('/visa-types', VisaTypeController::class);
-    
+
     Route::get('/analytics', [AnalyticsController::class, 'index']);
 
     Route::get('/applications', [ApplicationController::class, 'index']);
     Route::get('/applications/{application}', [ApplicationController::class, 'show']);
     Route::put('/applications/{application}', [ApplicationController::class, 'update']);
     Route::delete('/applications/{application}', [ApplicationController::class, 'destroy']);
+    Route::post('/visa-requirements/toggle', [VisaFieldRequirementController::class, 'toggle']);
+    Route::get('/visa-requirements', [VisaFieldRequirementController::class, 'getRequirements']);
 });
 
 Route::get('/destinations', [DestinationController::class, 'index']);
