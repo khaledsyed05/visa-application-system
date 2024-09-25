@@ -1,9 +1,9 @@
 <?php
 return [
     'paths' => [
-    'api/*', // Your regular API routes
-    'oauth/*' // Passport's routes 
-],
+        'api/*', // Your regular API routes
+        'oauth/*' // Passport's routes 
+    ],
     'allowed_methods' => ['*'],
     'allowed_origins' => ['*'],
     'allowed_origins_patterns' => [],

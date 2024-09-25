@@ -19,7 +19,7 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
         Route::get('/', [DestinationController::class, 'index']);
         Route::post('/', [DestinationController::class, 'store']);
         Route::get('/{destination}', [DestinationController::class, 'show']);
-        Route::put('/{destination}', [DestinationController::class, 'update']);
+        Route::put('/{destination}/update', [DestinationController::class, 'update']);
         Route::delete('/{destination}', [DestinationController::class, 'destroy']);
     });
 

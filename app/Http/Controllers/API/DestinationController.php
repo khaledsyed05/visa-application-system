@@ -52,9 +52,10 @@ class DestinationController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(DestinationRequest $request, Destination $destination)
+    public function update(Request $request, Destination $destination)
     {
-        $validatedData = $request->validated();
+        dd($request->all());
+        $validatedData = $request->all();
     
         // Handle the image upload
         if ($request->hasFile('image')) {
@@ -62,8 +63,6 @@ class DestinationController extends Controller
             if ($destination->image) {
                 Storage::disk('public')->delete($destination->image);
             }
-    
-            // Store the new image
             $imagePath = $request->file('image')->store('destinations', 'public');
             $validatedData['image'] = $imagePath;
         }
@@ -74,15 +73,8 @@ class DestinationController extends Controller
             $destination->visaTypes()->sync($request->visa_types);
         }
     
-        // Refresh the model to get the updated data
-        $destination->refresh();
-    
-        return response()->json($destination->load('visaTypes'));
+        return response()->json($destination->fresh()->load('visaTypes'), 200);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Destination $destination)
     {
         $destination->visaTypes()->detach();

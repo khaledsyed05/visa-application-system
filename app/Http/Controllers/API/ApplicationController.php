@@ -29,18 +29,6 @@ class ApplicationController extends Controller
     {
         $query = Application::with(['visaType', 'destination']);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('search')) {
-            $search = $request->search;
-            $query->where(function ($q) use ($search) {
-                $q->where('applicant_name', 'like', "%{$search}%")
-                    ->orWhere('email', 'like', "%{$search}%");
-            });
-        }
-
         $applications = $query->latest()->paginate(20);
 
         return response()->json($applications);
@@ -55,17 +43,23 @@ class ApplicationController extends Controller
         $rules = $this->validationService->getValidationRules($request->visa_type_id, $request->destination_id);
         
         $validated = $request->validate($rules);
-
+ if($request->hasFile('passport_file')){
         $passportPath = $request->file('passport_file')->store('passports', 'public');
+ }
+ if($request->hasFile('photo_file')){
         $photoPath = $request->file('photo_file')->store('photos', 'public');
-
+}
+ if($request->hasFile('id_picture')){
+        $idPath = $request->file('id_picture')->store('id pictures', 'public');
+}
         $application = Application::create([
-            'visa_type_id' => $validated['visa_type_id'],
-            'destination_id' => $validated['destination_id'],
-            'applicant_name' => $validated['applicant_name'],
-            'email' => $validated['email'],
-            'passport_file' => $passportPath,
-            'photo_file' => $photoPath,
+            'visa_type_id' => $validated['visa_type_id'] ?? null,
+            'destination_id' => $validated['destination_id'] ?? null,
+            'applicant_name' => $validated['applicant_name'] ?? null,
+            'email' => $validated['email'] ?? null,
+            'passport_file' => $passportPath ?? null,
+            'photo_file' => $photoPath ?? null,
+            'id_picture' => $idPath ?? null,
             'additional_info' => $validated['additional_info'] ?? null,
             'phone_number' => $validated['phone_number'] ?? null,
         ]);
@@ -122,8 +116,18 @@ class ApplicationController extends Controller
      */
     public function destroy(Application $application): JsonResponse
     {
-        Storage::disk('public')->delete([$application->passport_file, $application->photo_file]);
-
+        if ($application->passport_file)
+        {
+        Storage::disk('public')->delete([$application->passport_file]);
+        }
+        if ( $application->photo_file)
+        {
+        Storage::disk('public')->delete([$application->photo_file]);
+        }
+        if ( $application->id_picture)
+        {
+        Storage::disk('public')->delete([$application->id_picture]);
+        }
         $application->delete();
 
         return response()->json(['message' => 'Application deleted successfully']);
