@@ -15,20 +15,22 @@ return new class extends Migration
             $table->id();
         $table->unsignedBigInteger('visa_type_id');
         $table->unsignedBigInteger('destination_id');
-        $table->string('applicant_name');
+        $table->string('applicant_first_name');
+        $table->string('applicant_last_name');
+        $table->string('city')->nullable();
+        $table->string('counrty')->nullable();
         $table->string('email');
-        $table->string('passport_file')->nullable();
-        $table->string('photo_file')->nullable();
-        $table->string('id_picture')->nullable();
-        $table->string('additional_info')->nullable();
         $table->string('phone_number')->nullable();
+        $table->json('passport_file')->nullable();
+        $table->string('photo_file')->nullable();
+        $table->json('id_file')->nullable();
         $table->string('status')->default('unpaid');
         $table->string('paypal_order_id')->nullable();
         $table->string('payment_id')->nullable();
         $table->timestamps();
 
-        $table->foreign('visa_type_id')->references('id')->on('visa_types');
-        $table->foreign('destination_id')->references('id')->on('destinations');
+        $table->foreign('visa_type_id')->references('id')->on('visa_types')->cascadeOnDelete();
+        $table->foreign('destination_id')->references('id')->on('destinations')->cascadeOnDelete();
     });
     }
 

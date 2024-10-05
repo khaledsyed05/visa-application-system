@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('visa_type_id')->constrained();
             $table->foreignId('destination_id')->constrained();
-            
+            $table->decimal('cost', 8, 2)->default(0);
             $table->timestamps();
         });
     }

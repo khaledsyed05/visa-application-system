@@ -33,6 +33,9 @@ Route::prefix('admin')->middleware('auth:api')->group(function () {
     Route::delete('/applications/{application}', [ApplicationController::class, 'destroy']);
     Route::post('/visa-requirements/toggle', [VisaFieldRequirementController::class, 'toggle']);
     Route::get('/visa-requirements', [VisaFieldRequirementController::class, 'getRequirements']);
+
+    Route::post('cost', [VisaFieldRequirementController::class, 'storeCost' ]);
+    Route::get('cost', [VisaFieldRequirementController::class, 'getCost' ]);
 });
 
 Route::get('/destinations', [DestinationController::class, 'index']);

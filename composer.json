@@ -10,6 +10,7 @@
         "laravel/passport": "^12.3",
         "laravel/sanctum": "^4.0",
         "laravel/tinker": "^2.9",
+        "nnjeim/world": "^1.1",
         "srmklive/paypal": "~3.0"
     },
     "require-dev": {

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\VisaTypeRequest;
 use App\Models\VisaType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class VisaTypeController extends Controller
 {
@@ -23,9 +24,18 @@ class VisaTypeController extends Controller
      */
     public function store(VisaTypeRequest $request)
     {
-        $visaType = VisaType::create($request->validated());
+        $validated = $request->validated();
+
+        if ($request->hasFile('icon')) {
+            $path = $request->file('icon')->store('visa-type-icons', 'public');
+            $validated['icon'] = $path;
+        }
+
+        $visaType = VisaType::create($validated);
+
         return response()->json($visaType, 201);
     }
+
 
     /**
      * Display the specified resource.
@@ -40,7 +50,20 @@ class VisaTypeController extends Controller
      */
     public function update(VisaTypeRequest $request, VisaType $visaType)
     {
-        $visaType->update($request->validated());
+        $validated = $request->validated();
+
+        if ($request->hasFile('icon')) {
+            // Delete old icon if exists
+            if ($visaType->icon) {
+                Storage::disk('public')->delete($visaType->icon);
+            }
+
+            $path = $request->file('icon')->store('visa-type-icons', 'public');
+            $validated['icon'] = $path;
+        }
+
+        $visaType->update($validated);
+
         return response()->json($visaType);
     }
 
@@ -49,7 +72,12 @@ class VisaTypeController extends Controller
      */
     public function destroy(VisaType $visaType)
     {
+        if ($visaType->icon) {
+            Storage::disk('public')->delete($visaType->icon);
+        }
+
         $visaType->delete();
+
         return response()->json(null, 204);
     }
 }
